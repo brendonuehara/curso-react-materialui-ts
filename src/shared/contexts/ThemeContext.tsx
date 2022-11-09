@@ -13,7 +13,7 @@ const ThemeContext = createContext({} as IThemeContextData);
 
 export const useAppThemeContext = () => {
   return useContext(ThemeContext);
-}
+};
 
 interface IAppThemeProvider {
   children: React.ReactNode;
@@ -41,4 +41,4 @@ export const AppThemeProvider: React.FC<IAppThemeProvider> = ({ children }) => {
       </ThemeProvider>
     </ThemeContext.Provider>
   );
-}
+};
