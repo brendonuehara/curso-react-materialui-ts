@@ -1,44 +1,81 @@
 import { Avatar, Divider, Drawer, Icon, List, ListItemButton, ListItemIcon, ListItemText, useMediaQuery, useTheme } from '@mui/material';
+import { useMatch, useNavigate, useResolvedPath } from 'react-router-dom';
 import { Box } from '@mui/system';
+
 import { useDrawerContext } from '../../contexts';
 
-interface IMenuLateral {
+interface IMenuLateralProvider {
   children: React.ReactNode;
 }
-export const MenuLateral: React.FC<IMenuLateral> = ({ children }) => {
+
+interface IListItemLinkProps {
+  to: string;
+  icon: string;
+  label: string;
+  onClick: (() => void) | undefined;
+}
+const ListItemLink: React.FC<IListItemLinkProps> = ({ to, icon, label, onClick }) => {
+  const navigate = useNavigate();
+
+  const resolvedPath = useResolvedPath(to);
+  const match = useMatch({ path: resolvedPath.pathname, end: false });
+
+
+  const handleClick = () => {
+    navigate(to);
+    onClick?.();
+  };
+
+  return (
+    <ListItemButton selected={!!match} onClick={handleClick}>
+      <ListItemIcon>
+        <Icon>{icon}</Icon>
+      </ListItemIcon>
+      <ListItemText primary={label} />
+    </ListItemButton>
+  );
+};
+
+export const MenuLateral: React.FC<IMenuLateralProvider> = ({ children }) => {
   const theme = useTheme();
   const smDown = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const { isDrawerOpen, toggleDrawerOpen } = useDrawerContext();
+  const { isDrawerOpen, drawerOptions, toggleDrawerOpen } = useDrawerContext();
 
   return (
-    <><>
+    <>
       <Drawer open={isDrawerOpen} variant={smDown ? 'temporary' : 'permanent'} onClose={toggleDrawerOpen}>
-        <Box width={theme.spacing(28)} height='100%' display='flex' flexDirection='column'>
-          <Box width='100%' height={theme.spacing(20)} display='flex' alignItems='center' justifyContent='center'>
+        <Box width={theme.spacing(28)} height="100%" display="flex" flexDirection="column">
+
+          <Box width="100%" height={theme.spacing(20)} display="flex" alignItems="center" justifyContent="center">
             <Avatar
               sx={{ height: theme.spacing(12), width: theme.spacing(12) }}
-              src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/7b2ec0a8-3b2f-4e35-879b-7b4e270d6314/df10bvx-4948d2c0-d89f-4efa-aae8-374760251280.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzdiMmVjMGE4LTNiMmYtNGUzNS04NzliLTdiNGUyNzBkNjMxNFwvZGYxMGJ2eC00OTQ4ZDJjMC1kODlmLTRlZmEtYWFlOC0zNzQ3NjAyNTEyODAuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.zKMqqrh-HWfxwXs2ps--1vlWOdC8wV-kK8aIsseYAIs" />
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHtZml3TkpP3ou-riyor80ELAYKQj7cD2To8oP2HQ&s"
+            />
           </Box>
 
           <Divider />
 
           <Box flex={1}>
             <List component="nav">
-              <ListItemButton>
-                <ListItemIcon>
-                  <Icon>home</Icon>
-                </ListItemIcon>
-                <ListItemText primary="Página inicial" />
-              </ListItemButton>
+              {drawerOptions.map(drawerOption => (
+                <ListItemLink
+                  to={drawerOption.path}
+                  key={drawerOption.path}
+                  icon={drawerOption.icon}
+                  label={drawerOption.label}
+                  onClick={smDown ? toggleDrawerOpen : undefined}
+                />
+              ))}
             </List>
           </Box>
+
         </Box>
       </Drawer>
-    </><>
+
       <Box height="100vh" marginLeft={smDown ? 0 : theme.spacing(28)}>
         {children}
       </Box>
-    </></>
+    </>
   );
 };
